@@ -2,6 +2,7 @@ package canal
 
 import (
 	"fmt"
+	"github.com/siddontang/go-mysql/mysql"
 
 	"github.com/siddontang/go-mysql/replication"
 	"github.com/siddontang/go-mysql/schema"
@@ -18,6 +19,7 @@ const (
 type RowsEvent struct {
 	Table  *schema.Table
 	Action string
+	Position mysql.Position
 	// changed row list
 	// binlog has three update event version, v0, v1 and v2.
 	// for v1 and v2, the rows number must be even.
@@ -28,13 +30,15 @@ type RowsEvent struct {
 	Header *replication.EventHeader
 }
 
-func newRowsEvent(table *schema.Table, action string, rows [][]interface{}, header *replication.EventHeader) *RowsEvent {
+func newRowsEvent(table *schema.Table, action string, rows [][]interface{}, header *replication.EventHeader, p mysql.Position) *RowsEvent {
 	e := new(RowsEvent)
 
 	e.Table = table
 	e.Action = action
 	e.Rows = rows
 	e.Header = header
+	e.Position = p
+
 
 	e.handleUnsigned()
 
